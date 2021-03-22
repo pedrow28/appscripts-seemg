@@ -1,0 +1,50 @@
+//INSERINDO BOTÃO NA GUIA DA PLANILHA
+
+function onOpen() {
+  var ui = SpreadsheetApp.getUi();
+  // Or DocumentApp or FormApp.
+  ui.createMenu('Enviar Email')
+      .addItem('Enviar Email', 'menuItem1')
+      .addSeparator()
+      .addToUi();
+}
+
+
+//CRIANDO A FUNÇÃO PARA ENVIO DO E-MAIL
+
+function menuItem1() {
+  SpreadsheetApp.getUi() 
+    
+  var EMAIL_ENVIADO = "SIM";  //VARIÁVEL DE CONTROLE PARA ENCAMINHAMENTO DO E-MAIL
+  var sheet = SpreadsheetApp.getActiveSheet();
+  var startRow = 2;  
+  var lastRow = sheet.getLastRow();  
+  var dataRange = sheet.getRange(startRow, 1, lastRow, 6) //SELECIONANDO CAMPOS QUE SERÃO USADOS
+  var data = dataRange.getValues();
+  
+  for (var i = 0; i < data.length; ++i) {
+    var row = data[i];
+    var emailAddress = row[1];  //COLUNA EM QUE ESTARÃO OS ENDEREÇOS
+    var message = row[4];       //COLUNA EM QUE ESTARÁ O TEXTO DO E-MAIL
+    var emailSent = row[5];     //COLUNA EM QUE ESTÁ A VARÍAVEL DE CONTROLE EMAIL_ENVIADO
+    
+    if (emailSent != EMAIL_ENVIADO) {  
+      var subject = "[Termos de Compromisso] Liberação Extraordinária"; //ASSUNTO QUE SERA ENCAMINHADO NO E-MAIL
+
+      //ELEMENTOS HTML PARA FORMATAÇÃO DO TEXTO DO E-MAIL
+      var mapObj = {"\\n":"<br><br>","\\b":"<b>","b\\":"</b>"};
+      var html = "<div style='text-align:justify'>"
+      + message.replace(/\\n|\\b|b\\/g, function(matched){
+                return mapObj[matched];
+                })
+           + "</div>"
+           
+           MailApp.sendEmail(emailAddress, subject, message, {htmlBody: html});
+      
+    sheet.getRange(startRow + i, 6).setValue(EMAIL_ENVIADO);
+     
+    SpreadsheetApp.flush();      
+    
+    }
+  }
+}
