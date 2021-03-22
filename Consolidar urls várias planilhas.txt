@@ -1,0 +1,20 @@
+// SCRIPT PARA GERAR URLS DE VÁRIAS PLANILHAS DE UMA PASTA
+
+
+function geturl() {
+  var arquivoBase = SpreadsheetApp.openById("1_0VWnmPNhp4sduEICmYo-GhI-LUe1gl-CeZmeULDRKo") //planilha onde serao colocados os urls
+  var abaID = arquivoBase.getSheetByName("url")
+  
+  var folderFiles = DriveApp.getFolderById("1XX1OOg9Q2sNJYD3bo8i7WNATbVMHBn9r") // planilha com os arquivos
+  var list = []
+  list.push(['SRE', 'URL'])
+  var filesF = folderFiles.getFiles()
+  
+  while (filesF.hasNext()){
+      var file = filesF.next();
+      var row = [];
+      row.push(file.getName(), file.getUrl())
+      list.push(row)}
+  
+  abaID.getRange(1,1,list.length,list[0].length).setValues(list);
+}

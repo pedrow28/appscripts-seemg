@@ -1,0 +1,102 @@
+function fazerFormularios() {
+  
+  // PEGANDO PLANILHA / ABA
+  
+  var ss = SpreadsheetApp.getActiveSpreadsheet(); // pegando a planilha
+  var sheetId = ss.getSheetByName("ID") // aba que constarão os nomes das SRE's
+  var sheetURL = ss.getSheetByName("response") // aba que constarão os ids dos forms
+  
+  // PEGAR PASTA COM PLANILHAS
+  
+  var folderPlanilhas = DriveApp.getFolderById("1F98QHKV0P_3SpjQuNViWjd3F4JwYAv5X"); // pasta com planilhas
+  var list = [];
+  var filesPlanilhas= folderPlanilhas.getFiles()
+  var list_id = []; //Lista para colocar ids das planilhas de resposta
+  
+  
+  // LOOP
+
+  while (filesPlanilhas.hasNext()){ // loop para pegar nomes e id's
+    var file = filesPlanilhas.next();
+    var name_1 = file.getName(); 
+    var id_1 = file.getId();
+    var row = [];
+    row.push(name_1, id_1)
+    list.push(row)}
+  
+
+  // INSERINDO INFORMAÇÕES
+  
+  sheetId.getRange(1,1,list.length,list[0].length).setValues(list);
+  
+  
+   // GERAR FORMULÁRIOS
+  
+  for (var i = 0; i < list.length; i++) {
+    var name = list[i][0];
+    var name_sheet = name+".xlsx"; // nome da aba
+    var id = list[i][1];
+    var ss1 = SpreadsheetApp.openById(id); // pegando planilha com id gerado acima
+    var sheet1 = ss1.getSheetByName(name_sheet) // pegar aba
+    var obras = sheet1.getRange(2, 4, sheet1.getLastRow() - 1, 1).getValues(); // para exemplo pegar coluna de escolas
+    var municipios = sheet1.getRange(2, 3, sheet1.getLastRow() - 1, 1).getValues(); // para exemplo pegar coluna de tipo de endereços
+    var tc = sheet1.getRange(2, 5, sheet1.getLastRow() - 1, 1).getValues(); // para exemplo pegar coluna de prioridades
+    var info = [obras, municipios, tc]; // lista com escola, prioridade e tipo 
+    
+    var form = FormApp.create("SITUAÇÃO QUADRAS FNDE " + name)
+               .setTitle(name); // criar formulário e título
+    
+    for (var z = 0; z < info.length; z++) { // LOOP PARA GERAR PERGUNTAS PARA CADA ESCOLA
+      var nomeObra = info[0][z];  // NOME
+      var nomeMunic = info[1][z]; // PRIORIDADE - CASO DA PLANILHA 
+      var nTc = info[2][z]; // TIPO ENDEREÇO 
+      var descPerg1 = "Qual é a situação da obra de quadra: " + nomeObra + ", no município de  " + nomeMunic +  //MELHORAR ESSE TEXTO
+        ", realizada por meio do termo de compromisso nº " + nTc + "?" // DESC PERGUNTA
+       var choicesPerg1 = ["CONCLUÍDA", "EM EXECUÇÃO", "PARALISADA"] // OPÇÕES MULTIPLA ESCOLHA
+      
+      form.addCheckboxItem()
+          .setTitle(descPerg1)
+          .setChoiceValues(choicesPerg1)
+      
+      var descPerg2 = "Estando em execução ou paralisada, qual a faixa de avanço físico da obra?"; // DESC PERGUNTA 2
+      var choicesPerg2 = ["Até 20%", "Entre 20% e 40%", "Entre 40% e 60%", "Entre 60% e 80%", "Entre 80% e 100%"];
+      
+      form.addCheckboxItem()
+          .setTitle(descPerg2)
+          .setChoiceValues(choicesPerg2)
+      
+      
+      
+    } // FIM LOOP DAS PERGUNTAS DENTRO DO FORM
+    
+       
+      var idForm = form.getId();
+      var file1 = DriveApp.getFileById(idForm); //NOME ARQUIVO
+      var folder1 = DriveApp.getFolderById("1vfnOt5x5v3ozgnl5podeZMBJ1NOOGMR9"); // ID DA PASTA QUE SERÁ COLOCADO
+      
+    
+      var row_id = []; // linha para empurrar na lista id
+      row_id.push(name, idForm);
+      list_id.push(row_id)
+      
+      
+      
+      folder1.addFile(file1)
+      
+      var rootFolder = DriveApp.getRootFolder();
+      rootFolder.removeFile(file1); // REMOVER DA RAIZ
+
+    
+    
+  } // FIM DO LOOP QUE GERA FORMULÁRIO 
+  
+  
+  //COLOCANDO IDS NA PLANILHA
+  
+  sheetURL.getRange(2,1,list_id.length,list_id[0].length).setValues(list_id); 
+  
+  Logger.log(sheet1, name)
+  
+  
+}
+

@@ -1,0 +1,50 @@
+// SCRIPT CONSOLIDAR PLANILHAS EM UMA
+
+// Gerar botãpo "atualizar"
+
+function onOpen(){
+  var arquivo = SpreadsheetApp.getActiveSpreadsheet();
+  var menuEntries = [{name: "Consolidado", functionName: "consolida_arquivos"}];
+  arquivo.addMenu("Atualizar", menuEntries);
+}
+
+// Função para consolidar 
+
+function consolida_arquivos() {
+
+  //ACESSANDO PLANILHAS A SEREM CONSOLIDADAS POR MEIO DA LISTAGEM DE IDS
+  
+  var arquivoBase = SpreadsheetApp.openById("1_0VWnmPNhp4sduEICmYo-GhI-LUe1gl-CeZmeULDRKo"); // planilha base
+  var abaID = arquivoBase.getSheetByName("ID");
+  var abaConsolida = arquivoBase.getSheetByName("Consolidado");
+  var listaID = abaID.getRange(2, 1, (abaID.getLastRow()-1), 2).getValues();
+  
+  
+  
+  abaConsolida.getRange(2, 1, (abaConsolida.getLastRow()-1), 14).clearContent(); //LIMPANDO PLANILHA PREVIAMENTE
+  
+//CONSOLIDANDO
+
+
+  for (var i = 0; i < listaID.length; i++){
+  
+    var nomeRegional1 = listaID[i][0];
+    var nomeRegional = nomeRegional1.replace(".xlsx_converted", "")
+    var idRegional = listaID[i][1];    
+    var arquivoRegional = SpreadsheetApp.openById(idRegional);
+    var abaDados = arquivoRegional.getSheetByName(nomeRegional);
+    
+    var nLinhasDados = abaDados.getLastRow()
+    
+    
+    
+   var dados = abaDados.getRange(2, 1, (abaDados.getLastRow()-1), 14).getValues(); 
+    
+   abaConsolida.getRange((abaConsolida.getLastRow()+1), 1, dados.length, 14).setValues(dados)
+      
+    
+    
+        
+  }
+
+}

@@ -1,0 +1,26 @@
+// SCRIPT PARA CONVERTER ARQUIVOS XLSX EM GOOGLE SHEETS
+
+
+//ESTE SCRIPT PODE SER ÚTIL QUANDO JOGAMOS VÁRIAS PLANILHAS DE UMA VEZ EM UMA PASTA E QUEREMOS CONVERTÊ-LAS PARA A VERSÃO NATIVA DO GOOGLE DRIVE
+
+function importXLS(){
+  var folderBId = "1F98QHKV0P_3SpjQuNViWjd3F4JwYAv5X"; // PASTA EM QUE SERÃO INSERIDOS AS PLANILHAS CONVERTIDAS
+
+  var files = DriveApp.getFolderById('1Uu_q4yOME1jrfxslegYfU0Fty2qCIJzR').searchFiles('title != "nothing"'); // pasta arquivos xlsx
+  while(files.hasNext()){
+    var xFile = files.next();
+    var name = xFile.getName();
+    if (name.indexOf('.xlsx')>-1){ 
+      var ID = xFile.getId();
+      var xBlob = xFile.getBlob();
+      var newFile = {
+        title : name.replace(".xlsx_converted", ""),
+        parents: [{id: folderBId}] //  Added
+      };
+        Drive.Files.insert(newFile, xBlob, {
+        convert: true
+      });
+      // Drive.Files.remove(ID); // Added // If this line is run, the original XLSX file is removed. So please be careful this.
+    }
+  }
+}

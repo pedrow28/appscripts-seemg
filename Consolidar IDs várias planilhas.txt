@@ -1,0 +1,20 @@
+// SCRIPT PARA GERAR IDS DE VÁRIAS PLANILHAS DE UMA PASTA
+
+function listaIDs() {
+    var arquivoBase = SpreadsheetApp.openById("1_0VWnmPNhp4sduEICmYo-GhI-LUe1gl-CeZmeULDRKo"); // planilha da consolidação
+  var abaID = arquivoBase.getSheetByName("ID"); // aba da planilha
+  
+  var folderObra = DriveApp.getFolderById("1XX1OOg9Q2sNJYD3bo8i7WNATbVMHBn9r");  // pasta com planilhas a serem compiladas
+  var list = [];
+  list.push(['Name','ID']);
+  var filesObra = folderObra.getFiles();
+  
+  while (filesObra.hasNext()){ // loop para criar lista com ids e nomes
+    var file = filesObra.next();
+    var row = []
+    row.push(file.getName(),file.getId())
+    list.push(row)}
+  
+  abaID.getRange(1,1,list.length,list[0].length).setValues(list); // colocar valores na planilha
+  
+}
